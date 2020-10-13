@@ -1,0 +1,61 @@
+---
+- name: Create certificates
+  hosts: cluster
+  pre_tasks:
+    - name: "setup os"
+      block:
+      - name: "setup os : apt"
+        apt:
+          name: python3-pip
+      - name: "setup os : pip"
+        pip:
+          name: "{{ item }}"
+        loop:
+          - passlib[bcrypt]
+          - cryptography
+      - name: "setup os : create cert dir"
+        file:
+          path: /etc/ssl/node_exporter/
+          state: directory
+          owner: "{{ ansible_user }}"
+      become: true
+
+  tasks:
+  - name: "certificates : generate private key"
+    community.crypto.openssl_privatekey:
+      path: "/etc/ssl/node_exporter/{{ ansible_host }}"
+    register: key
+  - name: "certificates : generate csr"
+    community.crypto.openssl_csr:
+      path: "/etc/ssl/node_exporter/{{ ansible_host }}.csr"
+      privatekey_path: "/etc/ssl/node_exporter/{{ ansible_host }}"
+      common_name: "{{ ansible_host }}"
+      subject_alt_name: "IP:{{ ansible_host }}"
+  - name: "certificates : generate certificate" 
+    community.crypto.x509_certificate:
+      path: "/etc/ssl/node_exporter/{{ ansible_host }}.crt"
+      csr_path: "/etc/ssl/node_exporter/{{ ansible_host }}.csr"
+      ownca_content: "{{ ownca_content }}"
+      ownca_privatekey_content: "{{ ownca_privatekey_content }}"
+      provider: ownca
+    register: cert
+
+  post_tasks:
+    - file:
+        path: "{{ item }}"
+        owner: "node-exp"
+        group: "node-exp"
+      loop:
+        - "{{ key.filename }}"
+        - "{{ cert.filename }}"
+      become: yes
+
+- name: Start node exporter
+  hosts: cluster
+  roles:
+    - cloudalchemy.node-exporter
+  vars:
+    node_exporter_tls_server_config:
+      cert_file: "/etc/ssl/node_exporter/{{ ansible_host }}.crt"
+      key_file: "/etc/ssl/node_exporter/{{ ansible_host }}"
+    node_exporter_basic_auth_users: "{{ vault_node_exporter_basic_auth_users }}"

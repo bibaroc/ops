@@ -1,0 +1,16 @@
+---
+- name: Setup core monitoring software
+  hosts: prometheus
+  pre_tasks:
+  - name: "prometheus : create cert dir"
+    file:
+      path: /etc/ssl/prometheus/
+      state: directory
+      owner: "{{ ansible_user }}"
+    become: yes
+  - name: "prometheus : setup CA certificate"
+    copy: 
+      content: "{{ ownca_content }}"
+      dest:  /etc/ssl/prometheus/{{ ansible_host }}.ca.crt
+  roles:
+  - cloudalchemy.prometheus

@@ -1,0 +1,12 @@
+[master]
+35.211.152.96 ansible_user=runner
+
+[node]
+
+[prometheus]
+35.211.152.96 ansible_user=runner
+
+[cluster:children]
+master
+node
+prometheus

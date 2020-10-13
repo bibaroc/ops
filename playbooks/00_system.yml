@@ -1,0 +1,27 @@
+---
+- name: Disable google services
+  hosts: cluster
+  become: true
+  pre_tasks:
+    - name: "disable google services : systemd unit"
+      systemd:
+        name: "{{ item }}"
+        enabled: false
+        state: stopped
+      loop:
+        - google-osconfig-agent.service
+        - google-guest-agent.service
+      when: "disable_google_services"
+
+- name: Apply security restrictions
+  hosts: cluster
+  become: true
+  pre_tasks:
+    - name: "apt : update"
+      apt:
+        update_cache: yes
+  roles:
+  - dev-sec.ssh-hardening
+  - dev-sec.os-hardening
+  vars:
+    ssh_permit_root_login: "without-password"
