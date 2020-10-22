@@ -11,7 +11,7 @@
       loop:
         - google-osconfig-agent.service
         - google-guest-agent.service
-      when: "disable_google_services"
+      when: disable_google_services is defined
 
 - name: Apply security restrictions
   hosts: cluster

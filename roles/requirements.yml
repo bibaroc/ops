@@ -1,5 +1,5 @@
 - name: dev-sec.ssh-hardening
 - name: dev-sec.os-hardening
 - name: cloudalchemy.node-exporter
-- name: cloudalchemy.cloudalchemy.prometheus
-- name: community.crypto
+- name: cloudalchemy.prometheus
+- name: cloudalchemy.grafana

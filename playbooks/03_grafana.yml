@@ -1,0 +1,84 @@
+---
+- name: Setup grafana
+  hosts: grafana
+
+  pre_tasks:
+  - name: "setup os"
+    block:
+    - name: "grafana : setup os : ensure grafana group exists"
+      group:
+        name: grafana
+        state: present
+    - name: "grafana : setup os : create cert dir"
+      file:
+        path: /etc/ssl/grafana/
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: grafana
+    become: yes
+
+  tasks:
+  - name: "tls"
+    block:
+    - name: "grafana : tls : generate private key"
+      community.crypto.openssl_privatekey:
+        path: "/etc/ssl/grafana/{{ ansible_host }}"
+        group: grafana
+        mode: 0644
+    - name: "grafana : tls : generate csr"
+      community.crypto.openssl_csr:
+        path: "/etc/ssl/grafana/{{ ansible_host }}.csr"
+        privatekey_path: "/etc/ssl/grafana/{{ ansible_host }}"
+        common_name: "{{ ansible_host }}"
+        subject_alt_name: "IP:{{ ansible_host }}"
+    - name: "grafana : tls : generate certificate" 
+      community.crypto.x509_certificate:
+        path: "/etc/ssl/grafana/{{ ansible_host }}.crt"
+        csr_path: "/etc/ssl/grafana/{{ ansible_host }}.csr"
+        ownca_content: "{{ ownca_content }}"
+        ownca_privatekey_content: "{{ ownca_privatekey_content }}"
+        provider: ownca
+        group: grafana
+        mode: 0644
+    become: yes
+
+- name: Start grafana
+  hosts: grafana
+  roles:
+  - cloudalchemy.grafana
+  vars:
+    grafana_server:
+      protocol: https
+      cert_file: "/etc/ssl/grafana/{{ ansible_host }}.crt"
+      cert_key: "/etc/ssl/grafana/{{ ansible_host }}"
+  
+  # post_tasks:
+  # - name: "grafana : create dashboard dir"
+  #   file:
+  #     path: /etc/dashboards
+  #     state: directory
+  #     owner: "{{ ansible_user }}"
+  #     group: "grafana"
+  #   become: yes
+  # - name: "grafana : copy dashboards" 
+  #   copy:
+  #     src: dashboards/
+  #     dest: /etc/grafana/
+  #     owner: "{{ ansible_user }}"
+  #     group: "grafana"
+# 00
+# real    16m0,025s
+# user    2m52,639s
+# sys     0m39,461s
+# 01
+# real    2m3,349s
+# user    0m25,640s
+# sys     0m5,910s
+# 02
+# real    3m7,153s
+# user    0m32,634s
+# sys     0m5,988s
+# 03 
+# real    2m11,441s
+# user    0m22,335s
+# sys     0m4,080s
