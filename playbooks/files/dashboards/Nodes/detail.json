@@ -17,7 +17,7 @@
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
-    "iteration": 1604004323442,
+    "iteration": 1604005800245,
     "links": [],
     "panels": [
         {
@@ -137,11 +137,80 @@
             },
             "gridPos": {
                 "h": 6,
-                "w": 9,
+                "w": 3,
                 "x": 2,
                 "y": 0
             },
             "id": 6,
+            "options": {
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "showThresholdLabels": false,
+                "showThresholdMarkers": true
+            },
+            "pluginVersion": "7.3.0",
+            "targets": [
+                {
+                    "expr": "(((count(count(node_cpu_seconds_total{instance=\"$instance\",job=\"$job\"}) by (cpu))) - avg(sum by (mode)(irate(node_cpu_seconds_total{mode='idle',instance=\"$instance\",job=\"$job\"}[5m])))) * 100) / count(count(node_cpu_seconds_total{instance=\"$instance\",job=\"$job\"}) by (cpu))",
+                    "instant": true,
+                    "interval": "",
+                    "legendFormat": "sysload 15 avg",
+                    "refId": "C"
+                }
+            ],
+            "timeFrom": null,
+            "timeShift": null,
+            "title": "CPU busy",
+            "type": "gauge"
+        },
+        {
+            "datasource": "$datasource",
+            "fieldConfig": {
+                "defaults": {
+                    "custom": {},
+                    "mappings": [
+                        {
+                            "from": "",
+                            "id": 1,
+                            "text": "no data",
+                            "to": "",
+                            "type": 1,
+                            "value": "null"
+                        }
+                    ],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "#EAB839",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "percent"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 6,
+                "w": 9,
+                "x": 5,
+                "y": 0
+            },
+            "id": 11,
             "options": {
                 "reduceOptions": {
                     "calcs": [
@@ -246,7 +315,7 @@
             "gridPos": {
                 "h": 6,
                 "w": 4,
-                "x": 11,
+                "x": 14,
                 "y": 0
             },
             "id": 8,
@@ -352,7 +421,7 @@
             "gridPos": {
                 "h": 6,
                 "w": 6,
-                "x": 15,
+                "x": 18,
                 "y": 0
             },
             "id": 10,
@@ -373,7 +442,7 @@
             "pluginVersion": "7.3.0",
             "targets": [
                 {
-                    "expr": "100 - ((node_filesystem_avail_bytes{instance=\"$instance\", job=\"$job\", mountpoint=\"/\", fstype!=\"rootfs\"} * 100) / node_filesystem_size_bytes{instance=\"$instance\", job=\"$job\", mountpoint=\"/\", fstype!=\"rootfs\"})",
+                    "expr": "(1 - (node_filesystem_avail_bytes{instance=\"$instance\", job=\"$job\", mountpoint=\"/\", fstype!=\"rootfs\"} / node_filesystem_size_bytes{instance=\"$instance\", job=\"$job\", mountpoint=\"/\", fstype!=\"rootfs\"}))*100",
                     "instant": false,
                     "interval": "",
                     "legendFormat": "root partition usage",
@@ -541,8 +610,7 @@
             {
                 "allValue": null,
                 "current": {
-                    "selected": true,
-                    "tags": [],
+                    "selected": false,
                     "text": [
                         "ens4"
                     ],
@@ -584,7 +652,7 @@
         ]
     },
     "time": {
-        "from": "now-5m",
+        "from": "now-6h",
         "to": "now"
     },
     "timepicker": {
@@ -593,5 +661,5 @@
     "timezone": "",
     "title": "Node - detail",
     "uid": "A7j5vycMz",
-    "version": 2
+    "version": 3
 }

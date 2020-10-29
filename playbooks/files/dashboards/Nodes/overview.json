@@ -15,8 +15,7 @@
     "editable": true,
     "gnetId": null,
     "graphTooltip": 0,
-    "id": 7,
-    "iteration": 1603317108234,
+    "iteration": 1604006456159,
     "links": [],
     "panels": [
         {
@@ -28,6 +27,13 @@
                         "displayMode": "auto",
                         "filterable": false
                     },
+                    "links": [
+                        {
+                            "targetBlank": true,
+                            "title": "Detail insance",
+                            "url": "/d/A7j5vycMz/node-detail?var-job=${job}﻿&var-instance=﻿${__data.fields[1]}﻿&var-nic=﻿${nic}"
+                        }
+                    ],
                     "mappings": [],
                     "thresholds": {
                         "mode": "absolute",
@@ -48,7 +54,7 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 137
+                                "value": 125
                             }
                         ]
                     },
@@ -60,15 +66,39 @@
                         "properties": [
                             {
                                 "id": "custom.width",
-                                "value": 276
+                                "value": 400
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "nodename"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 275
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "instance"
+                        },
+                        "properties": [
+                            {
+                                "id": "custom.width",
+                                "value": 350
                             }
                         ]
                     }
                 ]
             },
             "gridPos": {
-                "h": 8,
-                "w": 12,
+                "h": 7,
+                "w": 16,
                 "x": 0,
                 "y": 0
             },
@@ -77,7 +107,7 @@
                 "showHeader": true,
                 "sortBy": []
             },
-            "pluginVersion": "7.2.1",
+            "pluginVersion": "7.3.0",
             "targets": [
                 {
                     "expr": "node_uname_info",
@@ -97,10 +127,11 @@
                     "options": {
                         "include": {
                             "names": [
-                                "job",
-                                "version",
                                 "instance",
-                                "nodename"
+                                "job",
+                                "nodename",
+                                "version",
+                                "release"
                             ]
                         }
                     }
@@ -119,7 +150,7 @@
                             "instance": "",
                             "job": "",
                             "nodename": "",
-                            "version": "os version"
+                            "version": ""
                         }
                     }
                 }
@@ -271,5 +302,5 @@
     "timezone": "",
     "title": "Overview",
     "uid": "cb9c332f",
-    "version": 11
+    "version": 3
 }
