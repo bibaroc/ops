@@ -53,6 +53,19 @@
 
 - name: Start node exporter
   hosts: cluster
+  pre_tasks:
+  - name: iptables
+    block: 
+    - name: "iptables: allow node exporter on 9100/TCP"
+      iptables:
+        chain: INPUT
+        destination_port: "9100"
+        jump: ACCEPT
+        protocol: tcp
+    - name: "iptables: persist"
+      shell: iptables-save > /etc/iptables/rules.v4
+    become: true
+
   roles:
     - cloudalchemy.node-exporter
   vars:

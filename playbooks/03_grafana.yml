@@ -44,6 +44,34 @@
 
 - name: Start grafana
   hosts: grafana
+  pre_tasks:
+  - name: "grafana : iptables"
+    block: 
+    - name: "grafana : iptables : allow grafana on 3000/TCP"
+      iptables:
+        chain: INPUT
+        destination_port: "3000"
+        jump: ACCEPT
+        protocol: tcp
+    - name: "grafana : iptables : persist"
+      shell: iptables-save > /etc/iptables/rules.v4
+    become: true
+  - name: "grafana : dashboards"
+    block: 
+    - name: "grafana : dashboards : config"
+      copy:
+        src: grafana_dashboards.yml
+        dest: /etc/grafana/provisioning/dashboards/
+        owner: "{{ ansible_user }}"
+        group: grafana
+    - name: "grafana : dashboards : copy definitions"
+      copy:
+        src: dashboards/
+        dest: /etc/dashboards/
+        owner: "{{ ansible_user }}"
+        group: grafana
+    become: yes
+
   roles:
   - cloudalchemy.grafana
   vars:
@@ -51,34 +79,3 @@
       protocol: https
       cert_file: "/etc/ssl/grafana/{{ ansible_host }}.crt"
       cert_key: "/etc/ssl/grafana/{{ ansible_host }}"
-  
-  # post_tasks:
-  # - name: "grafana : create dashboard dir"
-  #   file:
-  #     path: /etc/dashboards
-  #     state: directory
-  #     owner: "{{ ansible_user }}"
-  #     group: "grafana"
-  #   become: yes
-  # - name: "grafana : copy dashboards" 
-  #   copy:
-  #     src: dashboards/
-  #     dest: /etc/grafana/
-  #     owner: "{{ ansible_user }}"
-  #     group: "grafana"
-# 00
-# real    16m0,025s
-# user    2m52,639s
-# sys     0m39,461s
-# 01
-# real    2m3,349s
-# user    0m25,640s
-# sys     0m5,910s
-# 02
-# real    3m7,153s
-# user    0m32,634s
-# sys     0m5,988s
-# 03 
-# real    2m11,441s
-# user    0m22,335s
-# sys     0m4,080s
