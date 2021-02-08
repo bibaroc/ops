@@ -1,0 +1,84 @@
+- name: Remove unused services
+  hosts: cluster
+  become: true
+  tasks:
+  - name: "Remove google bloat"
+    ansible.builtin.import_tasks: tasks/slim-down-google.yml
+    when: provider is defined and provider == 'google'
+  - name: "Remove oracle bloat"
+    ansible.builtin.import_tasks: tasks/slim-down-oracle.yml
+    when: provider is defined and provider == 'oracle'
+
+- name: Configure system
+  hosts: cluster
+  become: true
+  tasks:
+  - name: "systemd-journald : create drop-ip directory"
+    ansible.builtin.file:
+      path: /etc/systemd/journald.conf.d/
+      state: directory
+      group: root
+      owner: root
+  - name: "systemd-journald : copy config"
+    ansible.builtin.copy:
+      src: journald.conf.d/
+      dest: /etc/systemd/journald.conf.d/
+      group: root
+      owner: root
+    register: journald_config
+  - name: "systemd-journald : restart systemd-journald"
+    ansible.builtin.systemd:
+      name: systemd-journald
+      state: restarted
+    when: journald_config.changed
+  - name: "sysctl : enable net.ipv4.ip_forward"
+    ansible.posix.sysctl:
+      name: net.ipv4.ip_forward
+      value: "1"
+      sysctl_set: true
+      state: present
+      reload: true
+
+- name: Configure k3s master
+  hosts: masters
+  become: true
+  tasks:
+  - name: "k3s : create drop-ip directory"
+    ansible.builtin.file:
+      path: /etc/systemd/system/k3s.service.d/
+      state: directory
+      group: root
+      owner: root
+  - name: "k3s : copy config"
+    ansible.builtin.copy:
+      src: k3s.service.d/
+      dest: /etc/systemd/system/k3s.service.d/
+      group: root
+      owner: root
+    register: k3s_config
+  - name: "k3s : systemctl daemon reload"
+    ansible.builtin.systemd:
+      daemon_reload: yes
+    when: k3s_config.changed
+
+- name: Configure k3s agent
+  hosts: agents
+  become: true
+  tasks:
+  - name: "k3s-agent : create drop-ip directory"
+    ansible.builtin.file:
+      path: /etc/systemd/system/k3s-agent.service.d/
+      state: directory
+      group: root
+      owner: root
+  - name: "k3s-agent : copy config"
+    ansible.builtin.copy:
+      src: k3s-agent.service.d/
+      dest: /etc/systemd/system/k3s-agent.service.d/
+      group: root
+      owner: root
+    register: k3s_agent_conf
+  - name: "k3s-agent : systemctl daemon reload"
+    ansible.builtin.systemd:
+      daemon_reload: yes
+    when: k3s_agent_conf.changed

@@ -1,6 +1,15 @@
+# ops
+
+## Ansible
+
+### requirements
+install individualy 
+``` bash
+ansible-galaxy collection install devsec.hardening
+ansible-galaxy collection install ansible.posix
+ansible-galaxy collection install community.general
 ```
-pip install jmespath passlib[bcrypt]
-ansible-galaxy install -r roles/requirements.yml
-ansible-galaxy collection install community.crypto
-ansible-playbook site.yml
+or from req file
+``` bash
+ansible-galaxy collection install -r roles/requirements.yml
 ```

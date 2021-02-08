@@ -1,0 +1,20 @@
+---
+- name: "disable oracle services : ubuntu : snap"
+  community.general.snap:
+    name: "{{ item }}"
+    state: absent
+  loop:
+  - oracle-cloud-agent
+  when: ansible_distribution == 'Ubuntu'
+  # once removed, 'state: absent' fails as "No snap matching 'oracle-cloud-agent' available."
+  ignore_errors: true 
+
+- name: "disable oracle services : ubuntu : systemd unit"
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    masked: true
+    state: stopped
+  loop:
+  - unattended-upgrades.service
+  - snapd.service
+  when: ansible_distribution == 'Ubuntu'

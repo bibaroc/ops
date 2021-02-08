@@ -1,17 +1,15 @@
-[master]
-35.211.152.96 ansible_user=runner disable_google_services=1
-
-[prometheus]
+[google]
 35.211.152.96 ansible_user=runner
 
-[node]
-130.61.56.58 ansible_user=ubuntu
+[oracle]
+193.122.48.21 ansible_user=ubuntu
 
-[grafana]
+[masters]
+193.122.48.21 ansible_user=ubuntu
+
+[agents]
 35.211.152.96 ansible_user=runner
 
 [cluster:children]
-master
-prometheus
-grafana
-node
+google
+oracle

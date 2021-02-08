@@ -1,5 +1,3 @@
----
-- import_playbook: playbooks/00_system.yml
-- import_playbook: playbooks/01_exporters.yml
-- import_playbook: playbooks/02_prom.yml
-- import_playbook: playbooks/03_grafana.yml
+- import_playbook: playbooks/00_slim-down.yml
+- import_playbook: playbooks/01_harden.yml
+- import_playbook: playbooks/02_ip-tables.yml

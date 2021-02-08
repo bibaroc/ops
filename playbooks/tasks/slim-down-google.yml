@@ -1,0 +1,34 @@
+---
+- name: "disable google services : ubuntu"
+  block:
+  - name: "disable google services : ubuntu : snap"
+    ansible.builtin.apt:
+      name: "snapd"
+      autoremove: true
+      purge: true
+  - name: "disable google services : ubuntu : systemd unit"
+    ansible.builtin.systemd:
+      name: "{{ item }}"
+      masked: true
+      state: stopped
+    loop:
+    - snapd.service
+    - unattended-upgrades.service
+    - google-network-daemon.service
+    - google-accounts-daemon.service
+    - google-clock-skew-daemon.service
+  when: ansible_distribution == 'Ubuntu'
+
+- name: "disable google services : debian"
+  block:
+  - name: "disable google services : debian : systemd unit"
+    ansible.builtin.systemd:
+      name: "{{ item }}"
+      masked: true
+      state: stopped
+    loop:
+    - google-osconfig-agent.service
+    - google-guest-agent.service
+    - packagekit.service
+    - unattended-upgrades.service
+  when: ansible_distribution == 'Debian'

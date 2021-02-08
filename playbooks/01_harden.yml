@@ -1,0 +1,23 @@
+- name: Apply security restrictions
+  hosts: cluster
+  become: true
+  pre_tasks:
+  - name: "apt : update"
+    ansible.builtin.apt:
+      update_cache: true
+      cache_valid_time: 7200
+  collections:
+  - devsec.hardening
+  roles:
+  - devsec.hardening.os_hardening
+  - devsec.hardening.ssh_hardening
+  vars:
+    ssh_permit_root_login: "without-password"
+    sftp_enabled: true
+    sysctl_overwrite:
+      net.ipv4.ip_forward: 1
+      net.ipv4.conf.all.forwarding: 1
+  post_tasks:
+  - name: "apt : install wireguard"
+    ansible.builtin.apt:
+      name: wireguard
