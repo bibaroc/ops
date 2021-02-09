@@ -111,8 +111,20 @@ data:
       - source_labels: [__meta_kubernetes_pod_container_name]
         target_label: job
 ---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: prom-local-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 3Gi
+---
 apiVersion: apps/v1
-kind: Deployment
+kind: ReplicaSet
 metadata:
   name: prometheus
   namespace: monitoring
@@ -146,6 +158,11 @@ spec:
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus 
+        - name: data-volume
+          mountPath: /prometheus
+        env:
+          - name: GOGC
+            value: "30"
         args:
         # defaults
         - --config.file
@@ -163,6 +180,9 @@ spec:
       - name: config-volume
         configMap:
          name: prometheus-config
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: prom-local-data
 ---
 kind: Service
 apiVersion: v1
@@ -173,6 +193,7 @@ metadata:
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/part-of: monitoring
 spec:
+  type: ClusterIP
   selector:
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/part-of: monitoring
@@ -180,26 +201,3 @@ spec:
   - protocol: TCP
     port: 9090
     targetPort: 9090
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: prometheus-ingress
-  namespace: monitoring
-  labels:
-    app.kubernetes.io/name: prometheus
-    app.kubernetes.io/part-of: monitoring
-  annotations:
-    kubernetes.io/ingress.class: traefik
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: prometheus-svc
-            port:
-              number:
-                9090
