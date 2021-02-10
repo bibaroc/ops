@@ -51,7 +51,7 @@ metadata:
 data:
   prometheus.yml: |
     global:
-      scrape_interval: 20s
+      scrape_interval: 60s
     scrape_configs:
     # api servers
     - job_name: 'k8apiserver'
@@ -154,7 +154,7 @@ spec:
         resources:
             limits:
               cpu: 150m
-              memory: 250Mi
+              memory: 300Mi
         volumeMounts:
         - name: config-volume
           mountPath: /etc/prometheus 
@@ -201,3 +201,26 @@ spec:
   - protocol: TCP
     port: 9090
     targetPort: 9090
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: prometheus-ingress
+#   namespace: monitoring
+#   labels:
+#     app.kubernetes.io/name: prometheus
+#     app.kubernetes.io/part-of: monitoring
+#   annotations:
+#     kubernetes.io/ingress.class: traefik
+# spec:
+#   rules:
+#   - http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: prometheus-svc
+#             port:
+#               number:
+#                 9090

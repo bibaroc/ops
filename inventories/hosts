@@ -3,12 +3,14 @@
 
 [oracle]
 193.122.48.21 ansible_user=ubuntu
+130.61.158.220 ansible_user=ubuntu
 
 [masters]
 193.122.48.21 ansible_user=ubuntu
 
 [agents]
 35.211.152.96 ansible_user=runner
+130.61.158.220 ansible_user=ubuntu
 
 [cluster:children]
 google
